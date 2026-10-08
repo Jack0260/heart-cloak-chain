@@ -72,7 +72,7 @@ function Index() {
   async function verifyAll() {
     setBusy(true);
     const r: Record<number, string[]> = {};
-    for (let i = 0; i < chain.length; i++) r[i] = await verifyBlock(chain[i], chain[i - 1]);
+    for (let i = 0; i < chain.length; i++) r[i] = await verifyBlock(chain[i]!, chain[i - 1]);
     setAudit(r); setBusy(false);
   }
   function tamper(i: number) {

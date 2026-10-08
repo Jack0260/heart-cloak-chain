@@ -115,21 +115,21 @@ export async function proveRange(v: bigint, r: bigint, nbits: number): Promise<R
   }
   for (let i = 0; i < nbits; i++) {
     const bit = (v >> BigInt(i)) & 1n;
-    const ri = rs[i];
+    const ri = rs[i]!;
     const Ci = commit(bit, ri);
     // statements: Y0 = Ci (=h^ri if bit 0), Y1 = Ci/g (=h^ri if bit 1)
     const Y = [Ci, (Ci * modPow(GROUP.g, P - 2n, P)) % P];
     const real = Number(bit), fake = 1 - real;
     const cf = randScalar(), sf = randScalar();
-    const tf = (modPow(h, sf, P) * modPow(modPow(Y[fake], cf, P), P - 2n, P)) % P;
+    const tf = (modPow(h, sf, P) * modPow(modPow(Y[fake]!, cf, P), P - 2n, P)) % P;
     const w = randScalar();
     const tr = modPow(h, w, P);
     const t = real === 0 ? [tr, tf] : [tf, tr];
-    const c = await hashToScalar(Ci, t[0], t[1]);
+    const c = await hashToScalar(Ci, t[0]!, t[1]!);
     const cr = ((c - cf) % q + q) % q;
     const sr = (w + cr * ri) % q;
-    const cs = real === 0 ? [cr, cf] : [cf, cr];
-    const ss = real === 0 ? [sr, sf] : [sf, sr];
+    const cs: [bigint, bigint] = real === 0 ? [cr, cf] : [cf, cr];
+    const ss: [bigint, bigint] = real === 0 ? [sr, sf] : [sf, sr];
     bits.push({ C: Ci.toString(16), c0: cs[0].toString(16), c1: cs[1].toString(16), s0: ss[0].toString(16), s1: ss[1].toString(16) });
   }
   return { bits, nbits };
@@ -139,7 +139,7 @@ export async function verifyRange(C: bigint, pr: RangeProof) {
   const { P, q, g, h } = GROUP;
   let agg = 1n;
   for (let i = 0; i < pr.bits.length; i++) {
-    const b = pr.bits[i];
+    const b = pr.bits[i]!;
     const Ci = BigInt("0x" + b.C);
     const c0 = BigInt("0x" + b.c0), c1 = BigInt("0x" + b.c1);
     const s0 = BigInt("0x" + b.s0), s1 = BigInt("0x" + b.s1);
@@ -181,7 +181,7 @@ export async function pseudonymize(patientId: string, salt: string) {
 }
 
 export async function blockHash(b: Omit<Block, "hash">) {
-  return sha256(JSON.stringify({ ...b, claims: b.claims.map((c) => ({ ...c })) }));
+  return sha256(JSON.stringify({ ...b, claims: b.claims }));
 }
 
 export async function mine(b: Omit<Block, "hash" | "nonce">): Promise<Block> {
@@ -218,7 +218,7 @@ export async function appendReading(
     const negR = (GROUP.q - r) % GROUP.q;
     claims.push({ label: th.label, threshold: th.t, proof: await proveRange(d, negR, NBITS) });
   }
-  const prev = chain[chain.length - 1];
+  const prev = chain[chain.length - 1]!;
   const block = await mine({
     index: chain.length, timestamp: Date.now(), prevHash: prev.hash,
     pseudonym: await pseudonymize(patientId, salt), signal,
