@@ -3,11 +3,8 @@
 
 export type SignalType = "heart_rate" | "sleep_cycle";
 
-// 2048-bit groups are slow in BigInt; use a 127-bit safe prime for the demo.
-// p = 2q + 1, g and h generate the order-q subgroup.
-export const P = 170141183460469231731687303715884105727n * 0n + 0n; // placeholder replaced below
-const p = 0xffffffffffffffffffffffffffffff61n; // overwritten by findSafePrime at init
-void p;
+// Demo uses a ~97-bit safe-prime group P = 2q+1 (fast in BigInt; not production strength).
+
 
 function modPow(b: bigint, e: bigint, m: bigint): bigint {
   let r = 1n;
