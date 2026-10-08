@@ -77,7 +77,7 @@ function Index() {
   }
   function tamper(i: number) {
     const c = [...chain];
-    const b = c[i];
+    const b = c[i]!;
     c[i] = { ...b, commitment: (BigInt("0x" + b.commitment) + 1n).toString(16) };
     setChain(c); setAudit({});
   }
@@ -126,7 +126,7 @@ function Index() {
             <ul className="max-h-48 space-y-1 overflow-auto font-mono text-xs">
               {results.map((b) => (
                 <li key={b.index} className="rounded bg-muted px-2 py-1">
-                  #{b.index} {b.signal} · {b.claims.length ? <span className="text-success">✓ {b.claims[0].label}</span> : <span className="text-accent">no claim</span>}
+                  #{b.index} {b.signal} · {b.claims.length ? <span className="text-success">✓ {b.claims[0]!.label}</span> : <span className="text-accent">no claim</span>}
                 </li>
               ))}
             </ul>

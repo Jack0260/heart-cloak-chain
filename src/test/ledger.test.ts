@@ -24,6 +24,6 @@ describe("health ledger", () => {
     const { block, secret } = await appendReading(chain, "a", "s", "heart_rate", 70);
     chain.push(block);
     const agg = anonymizedAggregate([secret], chain, "heart_rate", 2, 1);
-    expect(agg[0].suppressed).toBe(true);
+    expect(agg[0]?.suppressed).toBe(true);
   }, 30000);
 });
